@@ -1,26 +1,22 @@
-//model
 const { User } = require('../models/users.model');
 
 const bcrypt = require('bcryptjs');
 
 
-//Error handler
+//utils
+const { catchAsync } = require('../utils/catchAsync');
 const { AppError } = require('../utils/appError');
 
 
-const catchAsync = fn => {
-    return (req, res, next) => {
-        fn ( req, res, next).catch(next);
-    };
-};
+
 
 
 // User Account create
 const createUserAccount = catchAsync( async ( req, res, next ) => {
     
-        const { name, password, amount } = req.body;
+        const { name, password } = req.body;
 
-        const accountNumber = Math.ceil(Math.random() * 999999 );
+        const accountNumber = Math.ceil(Math.random() * 1000000 );
 
         const salt = await bcrypt.genSalt(12);
 
@@ -29,7 +25,6 @@ const createUserAccount = catchAsync( async ( req, res, next ) => {
         const newUserAccount = await User.create({
             name,
             password: hashPassword,
-            amount,
             accountNumber
         });
 
@@ -53,14 +48,9 @@ const login = catchAsync( async (req, res, next) => {
     // validate account
     const user = await User.findOne({where: { accountNumber, status: 'Active'}})
 
-    if(!user){
-        return next(new AppError('Account number not valid', 400));
-    }
-
-    // compare pwd with db
-    const validPasword = await bcrypt.compare(password, user.password);
-    if(!validPasword){
-        return next(new AppError('password not valid', 400))
+    // Compare pwd with db
+    if( !user || !(await bcrypt.compare(password, user.password))){
+        return next(new AppError('Invalid Credentials', 400));
     }
 
     // Generate JWT ... 
@@ -68,9 +58,22 @@ const login = catchAsync( async (req, res, next) => {
     res.status(200).json({
         status: 'success'
     });
-})
+});
 
 
-module.exports = { createUserAccount, login };
+// get All users
+const getAllUsers = catchAsync ( async ( req, res, next) => {
+    const users = await User.findAll({
+        attributes: { exclude: ['password']}
+    });
+
+    res.status(201).json({
+        users
+    })
+});
+
+
+
+module.exports = { createUserAccount, login, getAllUsers };
 
 

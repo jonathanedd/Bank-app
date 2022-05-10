@@ -2,23 +2,29 @@ import axios from 'axios';
 
 import { usersActions } from '../slices/user.slice';
 
-const API_URL = '';
+// const API_URL = '';
 
 export const login = (accountNumber, password) => {
 	return async dispatch => {
 		try {
 			// API REQUEST
-			dispatch(usersActions.login());
+			const res = await axios.post('http://localhost:4002/api/v3/users/login');
+			console.log(res);
+			dispatch(usersActions.login(accountNumber, password));
 		} catch (error) {
 			console.log(error);
 		}
 	};
 };
 
-export const signup = (name, email, password) => {
+export const signup = (name, password) => {
 	return async dispatch => {
 		try {
-			// API REQUEST
+			const res = await axios.post('http://localhost:4002/api/v3/users/signup');
+
+			console.log(res);
+			
+			dispatch(usersActions.signup(name, password))
 		} catch (error) {
 			console.log(error);
 		}

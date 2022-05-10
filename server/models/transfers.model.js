@@ -1,11 +1,10 @@
-// DataTypes
 const { DataTypes } = require('sequelize');
 
 // connect to database
 const { db } = require('../utils/database');
 
 
-const Transfer = db.define({
+const Transfer = db.define('transfers', {
     id: {
         primaryKey: true,
         autoIncrement: true,
@@ -20,9 +19,9 @@ const Transfer = db.define({
         type: DataTypes.INTEGER,
         allowNull: false
     },
-    rceiverUserId: {
-        type: DataTypes.STRING,
-        defaultValue: 'credit'
+    receiverUserId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
 });
 
